@@ -1,10 +1,16 @@
 import Head from 'next/head';
 import { Flex, Button } from '@chakra-ui/react';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { parseCookies } from 'nookies';
+
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Input } from '../components/Form/Input';
+
 import { useAuth } from '../hooks/Auth';
+import { Input } from '../components/Form/Input';
+import { redirect } from 'next/dist/next-server/server/api-utils';
+import { withSSRGuest } from '../utils/withSSRGuest';
 
 interface SignInFormData {
   email: string;
@@ -78,3 +84,9 @@ export default function Home() {
     </>
   )
 }
+
+export const getServerSideProps = withSSRGuest(async (context: GetServerSidePropsContext) => {
+  return {
+    props: {}
+  }
+});
