@@ -1,15 +1,11 @@
+import { Button, Flex } from '@chakra-ui/react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import { Flex, Button } from '@chakra-ui/react';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { parseCookies } from 'nookies';
-
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-import { useAuth } from '../hooks/Auth';
 import { Input } from '../components/Form/Input';
-import { redirect } from 'next/dist/next-server/server/api-utils';
+import { useAuth } from '../hooks/Auth';
 import { withSSRGuest } from '../utils/withSSRGuest';
 
 interface SignInFormData {
