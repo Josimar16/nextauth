@@ -1,5 +1,6 @@
 import { GetServerSidePropsContext } from "next";
 import { useAuth } from "../hooks/Auth";
+import { setupAPIClient } from "../services/api";
 import { withSSRAuth } from "../utils/withSSRAuth";
 
 export default function Dashboard() {
@@ -11,6 +12,8 @@ export default function Dashboard() {
 }
 
 export const getServerSideProps = withSSRAuth(async (context: GetServerSidePropsContext) => {
+  const apiClient = setupAPIClient(context);
+
   return {
     props: {}
   }
