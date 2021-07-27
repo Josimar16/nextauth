@@ -8,7 +8,7 @@ interface UseCanParams {
 
 export function useCan({ permissions, roles }: UseCanParams) {
   const { user, isAuthenticated } = useAuth();
-
+  
   if (!isAuthenticated) {
     return false;
   }
