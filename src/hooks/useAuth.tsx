@@ -17,7 +17,8 @@ interface SignInCredentials {
 }
 
 interface AuthContextData {
-  signIn(credentials: SignInCredentials): Promise<void>;
+  signIn: (credentials: SignInCredentials) => Promise<void>;
+  signOut: () => void;
   user: User;
   isAuthenticated: boolean;
 }
@@ -28,32 +29,57 @@ interface AuthProviderProps {
 
 const AuthContext = createContext({} as AuthContextData);
 
+let authChannel: BroadcastChannel;
+
 export function signOut() {
   destroyCookie(undefined, 'nextauth.token', { path: '/' });
   destroyCookie(undefined, 'nextauth.refreshToken', { path: '/' });
+
+  authChannel.postMessage('signOut');
 
   Router.push('/');
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User>({} as User);
+  const [user, setUser] = useState<User>();
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    const { 'nextauth.token': token } = parseCookies();
-    if (token) {
-      api.get('/me').then((response) => {
-        const { email, permissions, roles } = response.data;
-        setUser({
-          email,
-          permissions,
-          roles
-        })
-      }).catch(() => {
-        signOut();
-      });
+    authChannel = new BroadcastChannel('auth');
+
+    authChannel.onmessage = (message) => {
+      switch (message.data) {
+        case 'signOut':
+          signOut();
+          authChannel.close();
+          break;
+        case 'signIn':
+          Router.push('/dashboard');
+          authChannel.close();
+          break;
+      
+        default:
+          break;
+      }
     }
   }, []);
+
+  useEffect(() => {
+    const { 'nextauth.token': token } = parseCookies()
+    console.log('token');
+    
+    if (token) {
+      api.get('/me')
+        .then(response => {
+          const { email, permissions, roles } = response.data
+
+          setUser({ email, permissions, roles })
+        })
+        .catch(() => {
+          signOut();
+        })
+    }
+  }, [])
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
@@ -82,13 +108,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       api.defaults.headers['Authorization'] = `Bearer ${token}`;
 
       Router.push('/dashboard');
+
+      authChannel.postMessage('signIn');
     } catch (error) {
       console.log(error);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, user, isAuthenticated }}>
+    <AuthContext.Provider value={{ signIn, signOut, user, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
