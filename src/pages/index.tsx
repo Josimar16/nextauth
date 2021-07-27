@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { Input } from '../components/Form/Input';
-import { useAuth } from '../hooks/Auth';
+import { useAuth } from '../hooks/useAuth';
 import { withSSRGuest } from '../utils/withSSRGuest';
 
 interface SignInFormData {
